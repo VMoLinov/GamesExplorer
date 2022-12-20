@@ -8,8 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import ru.compose.gamesexplorer.model.dto.GameDto
-import ru.compose.gamesexplorer.model.dto.GameNav
+import ru.compose.gamesexplorer.model.local.GameModel
 import ru.compose.gamesexplorer.ui.screens.DetailsScreen
 import ru.compose.gamesexplorer.ui.screens.MainScreen
 
@@ -26,16 +25,15 @@ fun AppNavHost(
         startDestination = startDestination
     ) {
         composable("main") {
-            MainScreen(onNavigateToDetails = { gameDto ->
-                navController.navigate("details/$gameDto")
+            MainScreen(onNavigateToDetails = { gameModel ->
+                navController.navigate("details/$gameModel")
             })
         }
         composable(
             "details/{game}",
             arguments = listOf(navArgument("game") { type = GameNav() })
         ) {
-            val arg = it.arguments?.getParcelable<GameDto>("game")
-            arg?.let { game -> DetailsScreen(game) }
+            it.arguments?.getParcelable<GameModel>("game")?.let { game -> DetailsScreen(game) }
         }
     }
 }

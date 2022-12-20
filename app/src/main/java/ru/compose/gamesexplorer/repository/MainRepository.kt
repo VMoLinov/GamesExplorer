@@ -1,8 +1,8 @@
 package ru.compose.gamesexplorer.repository
 
-import ru.compose.gamesexplorer.model.dto.GameDto
+import ru.compose.gamesexplorer.model.local.GameModel
 
 interface MainRepository {
 
-    suspend fun getDefaultGames() : List<GameDto>
+    suspend fun getDefaultGames(): List<GameModel>
 }

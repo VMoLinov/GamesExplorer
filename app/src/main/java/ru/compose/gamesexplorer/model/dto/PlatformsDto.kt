@@ -1,10 +1,8 @@
 package ru.compose.gamesexplorer.model.dto
 
-import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
-import kotlinx.parcelize.Parcelize
+import ru.compose.gamesexplorer.model.local.GameModelPlatforms
 
-@Parcelize
 data class PlatformsDto(
     @SerializedName("id") val id: Long,
     @SerializedName("name") val name: String,
@@ -13,6 +11,12 @@ data class PlatformsDto(
     @SerializedName("image_background") val image: String,
     @SerializedName("image") val img: String?,
     @SerializedName("year_start") val yearStart: Int?,
-    @SerializedName("year_end") val yearEnd: Int?,
-    @SerializedName("games") val games: List<GameDto>
-) : Parcelable
+    @SerializedName("year_end") val yearEnd: Int?
+) {
+
+    fun toModel(): GameModelPlatforms {
+        return GameModelPlatforms(
+            id, name, slug, count, image, img, yearStart, yearEnd
+        )
+    }
+}
