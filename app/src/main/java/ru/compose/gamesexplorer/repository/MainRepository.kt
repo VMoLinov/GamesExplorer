@@ -1,8 +1,12 @@
 package ru.compose.gamesexplorer.repository
 
+import androidx.paging.PagingData
+import kotlinx.coroutines.flow.Flow
 import ru.compose.gamesexplorer.model.local.GameModel
 
 interface MainRepository {
 
-    suspend fun getDefaultGames(): List<GameModel>
+    val pager: Flow<PagingData<GameModel>>
+
+    suspend fun getDefaultGames(page: Int): List<GameModel>
 }

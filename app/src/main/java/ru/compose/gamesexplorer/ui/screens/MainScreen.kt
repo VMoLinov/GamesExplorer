@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -20,14 +21,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import ru.compose.gamesexplorer.model.local.GameModel
-import ru.compose.gamesexplorer.viewmodel.MainAppState
 import ru.compose.gamesexplorer.viewmodel.MainViewModel
-import java.util.concurrent.Flow
 
 @Composable
 fun MainScreen(
@@ -39,20 +41,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
-        ) {
-            when (val value = viewModel.data.value) {
-                is MainAppState.Success -> {
-                    ShowData(value.data, onNavigateToDetails)
-                }
-                is MainAppState.Loading -> {
-                    ShowLoading()
-                }
-                is MainAppState.Error -> {
-                    Toast.makeText(LocalContext.current, value.error.message, Toast.LENGTH_SHORT)
-                        .show()
-                }
-            }
-        }
+        ) { ShowData(games = viewModel.pager, onNavigateToDetails = onNavigateToDetails) }
     }
 }
 
@@ -101,22 +90,34 @@ fun Drawer(content: @Composable (PaddingValues) -> Unit) {
 
 @Composable
 fun ShowLoading() {
-    Box(contentAlignment = Alignment.Center) {
+    Box(contentAlignment = Alignment.BottomCenter) {
         CircularProgressIndicator()
     }
 }
 
 @Composable
-fun ShowData(data: List<GameModel>, onNavigateToDetails: (GameModel) -> Unit) {
+fun ShowData(games: Flow<PagingData<GameModel>>, onNavigateToDetails: (GameModel) -> Unit) {
+    val items = games.collectAsLazyPagingItems()
+    val gridCells = 2
     LazyVerticalGrid(
         modifier = Modifier.padding(8.dp),
-        columns = GridCells.Fixed(2)
+        columns = GridCells.Fixed(gridCells)
     ) {
-        items(count = data.size) {
-            GameItem(data[it], onNavigateToDetails)
-            if (it > data.size -4) {
-                Toast.makeText(LocalContext.current, "!!!", Toast.LENGTH_SHORT).show()
+        items(count = items.itemCount) { index ->
+            items[index]?.let { GameItem(game = it, onCLick = onNavigateToDetails) }
+        }
+        when (items.loadState.append) {
+            is LoadState.Loading -> {
+                item(span = { GridItemSpan(gridCells) }) { ShowLoading() }
             }
+            is LoadState.Error -> item {
+                Toast.makeText(
+                    LocalContext.current,
+                    (items.loadState.append as LoadState.Error).error.message.toString(),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            is LoadState.NotLoading -> Unit
         }
     }
 }

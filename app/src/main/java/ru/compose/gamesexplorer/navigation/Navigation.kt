@@ -32,8 +32,6 @@ fun AppNavHost(
         composable(
             "details/{game}",
             arguments = listOf(navArgument("game") { type = GameNav() })
-        ) {
-            it.arguments?.getParcelable<GameModel>("game")?.let { game -> DetailsScreen(game) }
-        }
+        ) { it.arguments?.getParcelable<GameModel>("game")?.let { game -> DetailsScreen(game) } }
     }
 }

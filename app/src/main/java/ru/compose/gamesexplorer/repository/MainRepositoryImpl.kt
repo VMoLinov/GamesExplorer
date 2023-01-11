@@ -1,5 +1,7 @@
 package ru.compose.gamesexplorer.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import ru.compose.gamesexplorer.model.local.GameModel
 import ru.compose.gamesexplorer.model.local.GameModelParentPlatforms
 import ru.compose.gamesexplorer.network.NetworkDao
@@ -7,9 +9,13 @@ import javax.inject.Inject
 
 class MainRepositoryImpl @Inject constructor(private val network: NetworkDao) : MainRepository {
 
-    override suspend fun getDefaultGames(): List<GameModel> {
+    override val pager = Pager(PagingConfig(10)) {
+        GamesSource(MainRepositoryImpl(network))
+    }.flow
+
+    override suspend fun getDefaultGames(page: Int): List<GameModel> {
         val platformsDto = network.parentPlatforms().results
-        return network.games().results.map { gameDto ->
+        return network.games(page).results.map { gameDto ->
             val platforms = mutableListOf<GameModelParentPlatforms>()
             gameDto.parentPlatforms.forEach { gameDtoPlatforms ->
                 platformsDto.find { it.id == gameDtoPlatforms.platformDto.id }

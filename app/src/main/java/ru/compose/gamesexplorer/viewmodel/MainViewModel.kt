@@ -1,28 +1,27 @@
 package ru.compose.gamesexplorer.viewmodel
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import ru.compose.gamesexplorer.repository.MainRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(private val repository: MainRepository) : ViewModel() {
 
-    private val _data: MutableState<MainAppState> = mutableStateOf(MainAppState.Loading)
-    val data = _data
+//    private val _data: MutableState<MainAppState> = mutableStateOf(MainAppState.Loading)
+//    val data = _data
+
+    val pager = repository.pager.cachedIn(viewModelScope)
 
     init {
-        viewModelScope.launch {
-            _data.value = MainAppState.Loading
-            try {
-                _data.value = MainAppState.Success(repository.getDefaultGames())
-            } catch (e: Exception) {
-                _data.value = MainAppState.Error(e)
-            }
-        }
+//        viewModelScope.launch {
+//            try {
+//                _data.value = MainAppState.Success(repository.getDefaultGames(1))
+//            } catch (e: Exception) {
+//                _data.value = MainAppState.Error(e)
+//            }
+//        }
     }
 }
